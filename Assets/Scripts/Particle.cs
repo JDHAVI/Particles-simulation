@@ -1,57 +1,62 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Mathematics;
 using UnityEngine;
 
 public class Particle : MonoBehaviour
 {
-    public double charge = 1;
-    public double mass = 1;
-    public double v0x = 0;
-    public double v0y = 0;
-    public double x0 = 0;
-    public double y0 = 0;
-    [SerializeField] Particle other;
-    public Particle[] particles;
-    // Start is called before the first frame update
+    public double charge = 1;     // заряд частицы
+    public double mass = 1;       // масса
+
+    private Vector2 velocity = Vector2.zero;
+    private Particle[] particles;
+
+    private const float SPEED_OF_LIGHT = 299792458f;
+    private const float SPEED_LIMIT = SPEED_OF_LIGHT;
+
+    private const double EPSILON_0 = 8.85e-12;
+    private const double MIN_R = 0.001;    // защита от NaN
+
     void Start()
     {
-        x0 = transform.position.x;
-        y0 = transform.position.y;
-
         particles = FindObjectsOfType<Particle>();
-
-        InvokeRepeating("DetectParticles", 0, 1);
-        //other = FindObjectOfType<Particle>();
     }
 
-    // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        
-    }
+        Vector2 totalForce = Vector2.zero;
 
-    public void DetectParticles()
-    {
-        foreach (Particle particle in particles)
+        foreach (Particle p in particles)
         {
-            v0x += ForceElx(transform.position.x, transform.position.y, particle.transform.position.x, particle.transform.position.y, charge, particle.charge) / (1000000000 * mass);
-            v0y += ForceEly(transform.position.x, transform.position.y, particle.transform.position.x, particle.transform.position.y, charge, particle.charge) / (1000000000 * mass);
+            if (p == this) continue;
 
-            transform.Translate(new Vector2((float)v0x * Time.deltaTime, (float)v0y * Time.deltaTime));
+            // направление силы: ОТ другой частицы → К текущей
+            Vector2 r = (Vector2)transform.position - (Vector2)p.transform.position;
+            double dist = r.magnitude;
+
+            // защита от деления на 0
+            if (dist < MIN_R)
+                dist = MIN_R;
+
+            // формула Кулона: F = k q1 q2 r / r^3
+            double k = 1.0 / (4 * Mathf.PI * (float)EPSILON_0);
+            double forceMagnitude = k * charge * p.charge / (dist * dist * dist);
+
+            Vector2 force = r * (float)forceMagnitude;
+
+            totalForce += force;
         }
-    }
 
-    public double ForceElx(double x1, double y1, double x2, double y2, double charge1, double charge2)
-    {
-        double fx = charge1 * charge2 * (x1 - x2) / (4 * math.PI * 8.85e-12 * math.pow((math.pow((x1 - x2), 2) + math.pow((y1 - y2), 2)), 1.5));
+        // ускорение
+        Vector2 acceleration = totalForce / (float)mass;
 
-        return fx;
-    }
-    public double ForceEly(double x1, double y1, double x2, double y2, double charge1, double charge2)
-    {
-        double fy = charge1 * charge2 * (y1 - y2) / (4 * math.PI * 8.85e-12 * math.pow((math.pow((x1 - x2), 2) + math.pow((y1 - y2), 2)), 1.5));
+        // изменение скорости (без 1e9!)
+        velocity += acceleration * Time.fixedDeltaTime;
 
-        return fy;
+        // ограничение скорости
+        if (velocity.magnitude > SPEED_LIMIT)
+            velocity = velocity.normalized * SPEED_LIMIT;
+
+        // перемещение
+        transform.position += (Vector3)(velocity * Time.fixedDeltaTime);
     }
 }
