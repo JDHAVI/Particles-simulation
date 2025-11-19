@@ -1,0 +1,53 @@
+using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class gamemanager : MonoBehaviour
+{
+    bool play = false;
+
+    public Button playButton;
+    public Button stopButton;
+    // Start is called before the first frame update
+    void Start()
+    {
+        Time.timeScale = 0;
+
+        stopButton.onClick.AddListener(Stop);
+        playButton.onClick.AddListener(Play);
+
+        stopButton.image.color = Color.gray;
+        playButton.image.color = Color.white;
+        
+        play = false;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+
+    public void Play()
+    {
+        if (play == false)
+        {
+            play = true;
+            Time.timeScale = 1;
+            playButton.image.color = Color.gray;
+            stopButton.image.color = Color.white;
+        }
+    }
+    public void Stop()
+    {
+        if (play == true)
+        {
+            play = false;
+            Time.timeScale = 0;
+            playButton.image.color = Color.white;
+            stopButton.image.color = Color.gray;
+        }
+    }
+}
