@@ -14,20 +14,32 @@ public class Particle : MonoBehaviour
     private const float SPEED_LIMIT = SPEED_OF_LIGHT;
 
     private const double EPSILON_0 = 8.85e-12;
+
     private const float MERGE_DISTANCE = 0.1f;
+    
+    private bool enabled = false;
 
     // Флаг, слиплась ли частица
     private bool merged = false;
 
     void Start()
     {
+        //Invoke("SetActive", 0.01f);
+
         particles = FindObjectsOfType<Particle>();
     }
 
     private void FixedUpdate()
     {
+        //if (!enabled)
+            //return;
         ApplyForces();
-        Merge();
+        //Merge();
+    }
+
+    public void SetActive()
+    {
+        enabled = true;
     }
 
     void ApplyForces()
@@ -61,7 +73,73 @@ public class Particle : MonoBehaviour
         transform.position += (Vector3)(velocity * Time.fixedDeltaTime);
     }
 
-    void Merge()
+    /*void Merge()
+    {
+        foreach (Particle p in particles)
+        {
+            Vector2 r = (Vector2)transform.position - (Vector2)p.transform.position;
+            float dist = r.magnitude;
+
+            if (dist <= MERGE_DISTANCE && (charge * p.charge) <= 0)
+            {
+                if (charge + p.charge >= 0)
+                {
+                    charge = charge + p.charge;
+                    mass = mass + p.mass;
+                    float ux  = ((float)mass * (float)(velocity.x) + (float)p.mass * (float)p.velocity.x) / ((float)mass + (float)p.mass);
+                    float uy = ((float)mass * (float)(velocity.y) + (float)p.mass * (float)p.velocity.y) / ((float)mass + (float)p.mass);
+                    velocity = new Vector2(ux, uy);
+                    Destroy(p.gameObject);                    
+                }
+            }
+
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        Particle p = collision.gameObject.GetComponent<Particle>();
+        if (charge + p.charge >= 0 && charge >= 0)
+        {
+            charge = charge + p.charge;
+            mass = mass + p.mass;
+            float ux = ((float)mass * (float)(velocity.x) + (float)p.mass * (float)p.velocity.x) / ((float)mass + (float)p.mass);
+            float uy = ((float)mass * (float)(velocity.y) + (float)p.mass * (float)p.velocity.y) / ((float)mass + (float)p.mass);
+            velocity = new Vector2(ux, uy);
+            Destroy(collision.gameObject);
+        }
+        else if (charge + p.charge >= 0 && charge < 0)
+        {
+            charge = charge + p.charge;
+            mass = mass + p.mass;
+            float ux = ((float)mass * (float)(velocity.x) + (float)p.mass * (float)p.velocity.x) / ((float)mass + (float)p.mass);
+            float uy = ((float)mass * (float)(velocity.y) + (float)p.mass * (float)p.velocity.y) / ((float)mass + (float)p.mass);
+            p.velocity = new Vector2(ux, uy);
+            Destroy(gameObject);
+        }
+
+        else if (charge + p.charge < 0 && charge >= 0)
+        {
+            charge = charge + p.charge;
+            mass = mass + p.mass;
+            float ux = ((float)mass * (float)(velocity.x) + (float)p.mass * (float)p.velocity.x) / ((float)mass + (float)p.mass);
+            float uy = ((float)mass * (float)(velocity.y) + (float)p.mass * (float)p.velocity.y) / ((float)mass + (float)p.mass);
+            p.velocity = new Vector2(ux, uy);
+            Destroy(gameObject);
+        }
+
+        else
+        {
+            charge = charge + p.charge;
+            mass = mass + p.mass;
+            float ux = ((float)mass * (float)(velocity.x) + (float)p.mass * (float)p.velocity.x) / ((float)mass + (float)p.mass);
+            float uy = ((float)mass * (float)(velocity.y) + (float)p.mass * (float)p.velocity.y) / ((float)mass + (float)p.mass);
+            velocity = new Vector2(ux, uy);
+            Destroy(collision.gameObject);
+        }
+    }
+
+    /*void Merge()
     {
         foreach (Particle p in particles)
         {
@@ -104,5 +182,5 @@ public class Particle : MonoBehaviour
 
             }
         }
-    }
+    }*/
 }

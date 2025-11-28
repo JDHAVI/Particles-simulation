@@ -13,7 +13,6 @@ public class gamemanager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Time.timeScale = 0;
 
         stopButton.onClick.AddListener(Stop);
         playButton.onClick.AddListener(Play);
@@ -22,6 +21,11 @@ public class gamemanager : MonoBehaviour
         playButton.image.color = Color.white;
         
         play = false;
+    }
+
+    private void Awake()
+    {
+        Time.timeScale = 0;
     }
 
     // Update is called once per frame
@@ -35,7 +39,7 @@ public class gamemanager : MonoBehaviour
         if (play == false)
         {
             play = true;
-            Time.timeScale = 1;
+            Time.timeScale = 1f;
             playButton.image.color = Color.gray;
             stopButton.image.color = Color.white;
         }
