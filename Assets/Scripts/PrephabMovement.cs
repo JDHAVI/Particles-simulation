@@ -1,32 +1,45 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PrephabMovement : MonoBehaviour
 {
-    bool draggable = false;
-    // Start is called before the first frame update
-    void Start()
+    private bool isDragging = false;
+    private Vector3 offset;
+
+    private void Start()
     {
-        
+
     }
 
-    // Update is called once per frame
+    void OnMouseDown()
+    {
+        isDragging = true;
+
+        // положение мыши в мировых координатах
+        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        mousePos.z = transform.position.z;
+
+        // чтобы объект не "скакал" под курсор
+        offset = transform.position - mousePos;
+    }
+
+    void OnMouseUp()
+    {
+        isDragging = false;
+    }
+
     void Update()
     {
-        if (draggable)
+        if (isDragging)
         {
-            //gameObject.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            mousePos.z = transform.position.z;
+
+            transform.position = mousePos + offset;
         }
     }
 
-    private void OnMouseDown()
-    {
-        draggable = true;
-    }
-
-    private void OnMouseUp()
-    {
-        draggable = false; 
-    }
 }
